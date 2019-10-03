@@ -5,6 +5,7 @@ B站动态抽奖
 
 dependency:
 
+
 beautifull soup 4
 
-selenium
+selenium with chromedriver.exe and chrome.exe
