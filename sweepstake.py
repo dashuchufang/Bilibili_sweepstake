@@ -17,7 +17,7 @@ class OnePerson:
     def __init__(self):
         self.uid = 0
         self.name = ''
-        self.fan = -1    # fan or not, -1 for not set for future use...
+        self.fan = -1    # fan or not, -1 for not set,,, for future use...
         self.reply = []
         self.got= ''
         
