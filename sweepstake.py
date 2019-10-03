@@ -11,7 +11,6 @@ import configparser
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup as Soup
-from pypinyin import lazy_pinyin
 
 
 class OnePerson:
