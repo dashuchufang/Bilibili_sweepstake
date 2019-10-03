@@ -183,7 +183,7 @@ class StartSection:
                 print(i.got)
             print(i.name, i.link)
             print(i.reply, end='\n\n')
-        print('\n\n本获奖名单由【大叔厨房·Bilibili动态抽奖小软件】生成\n详细情况请访问软件页（git）\n\n欢迎支持访问大叔厨房视频频道：\nBilibili: https://space.bilibili.com/11909\nYoutube: https://www.youtube.com/channel/UCQMfI0Xdr3-1d6F_Fjsvlxw\n\n谢谢使用~')
+        print('\n\n本获奖名单由【大叔厨房·Bilibili动态抽奖小软件】生成\n详细情况请访问软件页<a href="https://github.com/dashuchufang/Bilibili_sweepstake">https://github.com/dashuchufang/Bilibili_sweepstake</a>\n\n欢迎支持访问大叔厨房视频频道：\nBilibili: https://space.bilibili.com/11909\nYoutube: https://www.youtube.com/channel/UCQMfI0Xdr3-1d6F_Fjsvlxw\n\n谢谢使用~')
         
     def display_result(self, wait=0.5):
         header = f'<font size="4" face="Microsoft YaHei">&emsp;&emsp;抽奖时间：{datetime.now()}<br>抽奖动态链接：{self.url}<br>&emsp;&emsp;参与人数：{len(self.dict_of_persons)}<br>&emsp;&emsp;中奖人数：{len(self.result)}<br>&emsp;黑名单&ensp;uid：'
@@ -218,7 +218,7 @@ class StartSection:
                     html.write(r'<img src=".\loading.gif" alt=”loading” /><br>')
                     html.write(r'正在抽奖。。。<br><br><br><br>')
                 else:
-                    html.write('<br><br><br></font><font size="2" face="Microsoft YaHei">本获奖名单由【大叔厨房·Bilibili动态抽奖小软件】生成<br>详细情况请访问软件页（git）<br><br>欢迎支持访问大叔厨房视频频道：<br>Bilibili: <a href="https://space.bilibili.com/11909">https://space.bilibili.com/11909</a><br>Youtube: <a href="https://www.youtube.com/channel/UCQMfI0Xdr3-1d6F_Fjsvlxw">https://www.youtube.com/channel/UCQMfI0Xdr3-1d6F_Fjsvlxw</a><br><br>谢谢使用~')
+                    html.write('<br><br><br></font><font size="2" face="Microsoft YaHei">本获奖名单由【大叔厨房·Bilibili动态抽奖小软件】生成<br>详细情况请访问软件页<a href="https://github.com/dashuchufang/Bilibili_sweepstake">https://github.com/dashuchufang/Bilibili_sweepstake</a><br><br>欢迎支持访问大叔厨房视频频道：<br>Bilibili: <a href="https://space.bilibili.com/11909">https://space.bilibili.com/11909</a><br>Youtube: <a href="https://www.youtube.com/channel/UCQMfI0Xdr3-1d6F_Fjsvlxw">https://www.youtube.com/channel/UCQMfI0Xdr3-1d6F_Fjsvlxw</a><br><br>谢谢使用~')
                 
                 html.write(f'</font>')
             self.display.refresh()
