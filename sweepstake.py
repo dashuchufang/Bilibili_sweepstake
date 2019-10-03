@@ -5,11 +5,13 @@ from secrets import choice
 from copy import deepcopy
 from datetime import datetime
 from codecs import open
+import configparser
 
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup as Soup
+from pypinyin import lazy_pinyin
 
 
 class OnePerson:
@@ -23,7 +25,7 @@ class OnePerson:
         
     def __str__(self):
         return f'{self.name}, {self.uid}'
-                                                          
+
     @property
     def link(self):
         return f'https://space.bilibili.com/{self.uid}'
@@ -42,10 +44,14 @@ class StartSection:
         
         self.generate_html()
         self.display = webdriver.Chrome(options=options, executable_path="chromedriver.exe", )
+        # self.display.set_window_size(1080, 960)
+        # self.display.set_window_position(0,0)
         self.display.get(self.result_html)
         self.display.refresh()
         
         self.driver = webdriver.Chrome(options=options, executable_path="chromedriver.exe", )
+        # self.driver.set_window_size(1080, 960)
+        # self.driver.set_window_position(1920,0)
         self.driver.get(self.url)
 
         self.refresh()
@@ -105,7 +111,7 @@ class StartSection:
             except:
                 break
         
-        print(f'Done with {self.url}.')
+        print(f'{self.url}\n数据抓取完成。。。')
         self.report()
         self.display_all()
         
@@ -123,17 +129,22 @@ class StartSection:
     def display_all(self):
         with open(self.result_html, 'w', 'utf-8') as html:
             html.write(f'<font size="4" face="Microsoft YaHei">{datetime.now()}，抓取数据完成。<br>')
-            html.write(f'&emsp;&emsp;页数：{self.page_ct}<br>&emsp;回复数：{self.reply_ct}<br>实际人数：{len(self.dict_of_persons)}<br><br>')
+            html.write(f'&emsp;&emsp;页数：{self.page_ct}<br>&emsp;回复数：{self.reply_ct}&emsp; （只计主回复数，二级回复不计入）<br>实际人数：{len(self.dict_of_persons)}<br><br>')
             
             for i, p in enumerate(self.dict_of_persons.values()):
                 html.write(f'#{i+1}<br>')
-                html.write(f'<b>{p.name}</b>&nbsp;&nbsp;&nbsp;<a href="{p.link}">{p.link}</a><br>')
+                html.write(f'<b>{p.name}</b>&nbsp;&nbsp;&nbsp;<a href="{p.link}">{p.link}</a>')
+                if p.uid in black_list:
+                    html.write(f'&nbsp;&nbsp;<b>（已加入黑名单）</b>')
+                html.write('<br>')
                 for j in p.reply:
                     html.write(f'{j[0]}&nbsp;&nbsp;{j[1]}<br>')
                 html.write('<br>')
-            html.write('</font>')
-        self.display.refresh()
 
+            html.write(f'</font><font size="2" face="Microsoft YaHei"><br><br><br><br><br><br>本名单由【大叔厨房·Bilibili动态抽奖小软件】生成<br>详细情况请访问软件页<a href="https://github.com/dashuchufang/Bilibili_sweepstake">https://github.com/dashuchufang/Bilibili_sweepstake</a><br><br>欢迎支持访问大叔厨房视频频道：<br>Bilibili: <a href="https://space.bilibili.com/11909">https://space.bilibili.com/11909</a><br>Youtube: <a href="https://www.youtube.com/channel/UCQMfI0Xdr3-1d6F_Fjsvlxw">https://www.youtube.com/channel/UCQMfI0Xdr3-1d6F_Fjsvlxw</a><br><br>谢谢使用~</font>')
+
+        self.display.refresh()
+        
     @staticmethod
     def choose_one_key(dict_pool):
         
@@ -145,9 +156,6 @@ class StartSection:
             raise ValueError('Empty pool dictionary')
 
     def choose_mul(self, num, rank=[]):
-        
-        if rank:
-            assert len(rank) == num, '奖项数量需要等于中奖人数'
         
         self.result = []
         pool_copy = deepcopy(self.dict_of_persons)
@@ -218,55 +226,147 @@ class StartSection:
                     html.write(r'<img src=".\loading.gif" alt=”loading” /><br>')
                     html.write(r'正在抽奖。。。<br><br><br><br>')
                 else:
-                    html.write('<br><br><br></font><font size="2" face="Microsoft YaHei">本获奖名单由【大叔厨房·Bilibili动态抽奖小软件】生成<br>详细情况请访问软件页<a href="https://github.com/dashuchufang/Bilibili_sweepstake">https://github.com/dashuchufang/Bilibili_sweepstake</a><br><br>欢迎支持访问大叔厨房视频频道：<br>Bilibili: <a href="https://space.bilibili.com/11909">https://space.bilibili.com/11909</a><br>Youtube: <a href="https://www.youtube.com/channel/UCQMfI0Xdr3-1d6F_Fjsvlxw">https://www.youtube.com/channel/UCQMfI0Xdr3-1d6F_Fjsvlxw</a><br><br>谢谢使用~')
+                    html.write(f'</font><font size="2" face="Microsoft YaHei"><br><br><br>获奖名单已保存在{self.result_html}')
+                    html.write('<br><br>本获奖名单由【大叔厨房·Bilibili动态抽奖小软件】生成<br>详细情况请访问软件页<a href="https://github.com/dashuchufang/Bilibili_sweepstake">https://github.com/dashuchufang/Bilibili_sweepstake</a><br><br>欢迎支持访问大叔厨房视频频道：<br>Bilibili: <a href="https://space.bilibili.com/11909">https://space.bilibili.com/11909</a><br>Youtube: <a href="https://www.youtube.com/channel/UCQMfI0Xdr3-1d6F_Fjsvlxw">https://www.youtube.com/channel/UCQMfI0Xdr3-1d6F_Fjsvlxw</a><br><br>谢谢使用~')
                 
                 html.write(f'</font>')
             self.display.refresh()
+        
+        print(f'抽奖完成。\n结果保存在{self.result_html}')
 
 
-
-
-
-
-
-## ==========settings=============
+def write_defaut_settings():
+    s = '''
+[settings]
 
 ### chrome 路径:
-chrome_location = r"E:\PortableApps\PortableApps\GoogleChromePortable\App\Chrome-bin\chrome.exe"
+#### 示例：chrome_location = 'D:\GoogleChrome\App\Chrome-bin\chrome.exe'
+
+chrome_location = ''
+
+
 
 ### bilibili动态 地址:
-url = r'https://t.bilibili.com/305801383717966503'
+#### 示例：url = 'https://t.bilibili.com/1234567890'
 
-### 黑名单，比如自己的或者仇人的 uid:
-black_list = [11909]  ## in order NOT to get yourself
+url = ''
+
+
+
+### 黑名单，比如自己的或者仇人的 uid，逗号分隔:
+#### 示例：black_list = [11909, 1234, 1, 123]
+
+black_list = []
+
+
 
 ### 抽奖等级，或者奖品，或者留空
-#### 举例 1： rank = ['三等奖'] * 4 + ['二等奖'] * 3 + ['一等奖'] * 2 + ['特等奖']
-#### 举例 2： rank = ['冰箱'] * 3 + ['彩电'] * 2 + ['洗衣机']
-#### 举例 3： rank = []
+#### 示例 1： rank = ['三等奖'] * 4 + ['二等奖'] * 3 + ['一等奖'] * 2 + ['特等奖']
+#### 示例 2： rank = ['冰箱'] * 3 + ['彩电'] * 2 + ['洗衣机']
+#### 示例 3： rank = []
 #### 数量需要等于下面设置的中奖人数
+
 rank = []
 
+
+
 ### 中奖人数
+
 number = 10
 
+
+
 ### 开奖间隔，心跳时间，单位：喵
+
 wait = 2
 
+
+###删除本文件以恢复默认设置。
 ## =========end of settings==========
+'''
 
+    with open('settings.ini', 'w', 'utf-8') as settings:
+        settings.write(s)
 
+def read_settings():
 
-def step1():
+    global chrome_location, url, black_list, rank, number, wait
+
+    if not os.path.exists('settings.ini'):
+        print('未找到设置文件settings.ini，自动生成默认设置')
+        write_defaut_settings()
+        input('请于settings.ini设置对应项，之后按回车继续')
+
+    config = configparser.ConfigParser()
+    config.sections()
+    config.read('settings.ini', "utf-8")
+    settings = dict(config['settings'])
+    for k,v in settings.items():
+        settings[k] = eval(v)
+
+    chrome_location =  settings['chrome_location']
+    url = settings['url']
+    black_list = settings['black_list']
+    rank = settings['rank']
+    number = settings['number']
+    wait = settings['wait']
+    
+    assert os.path.exists(chrome_location), f'请在settings.ini设置chrome.exe路径'
+    assert os.path.exists('chromedriver.exe'), '未找到chromedriver.exe，请将对应版本置于此文件夹中'
+
+    if rank:
+        assert len(rank) == number, f'奖项数量{len(rank)}需要等于中奖人数{number}'
+        
+
+def step0():
     global s
     s = StartSection(chrome_location, url)
 
+def step1():
+    while True:
+        user_input = get_input('\n\n请等待网页载入完成后输入数字【1】开始抓取数据，或是关闭窗口退出：\n')
+        if user_input == 1:
+            s.get_all_pages()
+            return
+        else:
+            print('没这个选项啊，亲。。。')
+            continue
+    
 def step2():
-    s.get_all_pages()
+    while True:
+        user_input = get_input('\n\n请输入数字【2】开始抽奖，或是关闭窗口退出：\n')
+        if user_input == 2:
+            s.choose_mul(number, rank)
+            s.display_result(wait)
+            break
+        else:
+            print('没这个选项啊，亲。。。')
+            continue
 
-def step3():
-    s.choose_mul(number, rank)
-    s.display_result(wait)
+def get_input(s):
+    while True:
+        try:
+            return int(input(s))
+        except ValueError:
+            print('请输入数字。')
+
+            
+            
+read_settings()    
+
+input('请按回车键，开始初始化，并载入网页。')
+
+step0()
+
+step1()
+
+step2()
+
+
+
+    
+
+
 
 
 
