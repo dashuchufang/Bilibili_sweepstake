@@ -12,7 +12,10 @@ beautifull soup 4
 selenium with chromedriver.exe and chrome.exe
 
 
-
+#
+#
+#
 
 python -m pip install --upgrade pip
+
 pip install selenium, beautifulsoup4
